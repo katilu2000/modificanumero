@@ -32,36 +32,57 @@ input,button{
 <body>
 
 <h1>Modificar Número Global</h1>
+<!-- Título principal de la página. Se muestra en grande arriba del input. -->
 
 <input type="number" id="numeroInput" placeholder="Escribe un número">
+<!-- Campo donde el usuario puede escribir un número. 
+     type="number" asegura que solo se pueda escribir números.
+     El id="numeroInput" sirve para referirse a este input desde JavaScript.
+     El placeholder muestra un texto temporal hasta que el usuario escriba algo. -->
+
 <button onclick="guardarNumero()">Guardar</button>
+<!-- Botón que llama a la función guardarNumero() cuando se hace clic.
+     Esa función enviará el número al Google Sheets y actualizará la pantalla. -->
 
 <div id="numeroActual">Cargando...</div>
+<!-- Aquí se muestra el número actual que está guardado en Google Sheets.
+     Al inicio dice "Cargando..." hasta que la función cargarNumero() traiga el valor real. -->
 
 <script>
 
 const API_URL = "https://script.google.com/macros/s/AKfycbyxLN7FHvsAD5lbVsVIrXPZQsq-OZu4uEomF5wZBInQXpgRorpkDB1TWHRgNZkN0Bc/exec";
+// URL de tu Google Apps Script. Todas las peticiones GET y POST se harán a esta dirección.
+
 function cargarNumero(){
-  fetch(API_URL)
-  .then(res => res.json())
+  // Función que obtiene el número actual de Google Sheets
+  fetch(API_URL)                     // Hace una petición GET al script
+  .then(res => res.json())           // Convierte la respuesta a JSON
   .then(data=>{
+    // Actualiza el div "numeroActual" con el valor recibido
     document.getElementById("numeroActual").textContent =
       "Número actual: " + (data.numero || 0);
+      // Si data.numero no existe, muestra 0
   });
 }
 
 function guardarNumero(){
+  // Función que guarda el número ingresado en Google Sheets
   const numero = document.getElementById("numeroInput").value;
+  // Toma el valor del input
 
   fetch(API_URL,{
-    method:"POST",
-    body: JSON.stringify({numero: numero})
+    method:"POST",                     // Hace una petición POST al script
+    body: JSON.stringify({numero: numero})  // Envía un JSON con el número
   })
-  .then(()=>cargarNumero());
+  .then(()=>cargarNumero());           // Después de guardar, actualiza la pantalla
 }
 
 cargarNumero();
+// Al cargar la página, muestra inmediatamente el número actual
+
 setInterval(cargarNumero, 5000);
+// Cada 5 segundos vuelve a traer el número de Google Sheets
+// Esto asegura que cualquier otro usuario vea los cambios en tiempo casi real
 
 </script>
 
